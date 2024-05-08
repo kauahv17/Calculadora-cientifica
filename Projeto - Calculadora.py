@@ -26,39 +26,35 @@ class CALCULADORA:
     
     def encontrar_raizes(self, equacao):
         # Encontrando todas as ocorrências de '√' seguidas por um ou mais dígitos
-        potencias_raiz = ""
+        raizes = ""
         padrao = r'(√+)(\d+)'
         ocorrencias = re.findall(padrao, equacao)
 
         for ocorrencia in ocorrencias:
-            raizes, numero = ocorrencia
-            for i in range(len(raizes)):
-                potencias_raiz += '**0.5' + ')'
-            substituicao = '(' * len(raizes) + numero + potencias_raiz
-            equacao = equacao.replace(raizes + numero, substituicao)
+            raiz, numero = ocorrencia
+            for i in range(len(raiz)):
+                raizes += '**0.5' + ')'
+            substituicao = '(' * len(raiz) + numero + raizes
+            equacao = equacao.replace(raiz + numero, substituicao)
 
         return equacao
     
     def converter(self, equacao, padrao):
-        if padrao == "eua":
-            equacao = equacao.replace(",","_").replace(".",",").replace("_",".")
+        if padrao == "eua":#coverte o número em formato brasileiro para o formato americano
+            return equacao.replace(",","_").replace(".",",").replace("_",".")
         
-        elif padrao == "br":
-            equacao = f"{equacao:_}".replace(".",",").replace("_",".")
-
-        return equacao
+        elif padrao == "br":#coverte o número em formato americano para o formato brasileiro
+            return f"{equacao:_}".replace(".",",").replace("_",".")
     #|-----------------Arredondar Valores-----------------|
     def arredondar(self, num):
-        around_num = str(num)
-        if "," in around_num:
-            i = around_num.find(",")
-            if len(around_num[i+1:]) > 7:
-                around_num = around_num[:i+1+7]
-            elif int(around_num[i+1:]) == 0:
-                around_num = around_num[:i]
-        return around_num
+        str_num = str(num)
+        i = str_num.find(".")
+        if int(str_num[i+1:]) == 0:
+            return int(str_num[:i])
+        else:
+            return float(str_num) if len(str_num) <= 7 else round(float(str_num),7)
     #|-----------------Arredondar Valores-----------------|
-    def CALCULO(self, conta):
+    def CALCULAR(self, conta):
         equacao = self.converter(conta, "eua")
         troca_simbolos_matematicos = {'+':'+','-':'-','×':'*','÷':'/','^':'**','√':'√'}
         simbolos_matematicos = ['+','-','×','÷','^','√']
@@ -94,12 +90,12 @@ class CALCULADORA:
 
         try:
             resultado = eval(_equation_)
-            resultado = self.converter(resultado, "br")
-            resultado = self.arredondar(resultado)
+            if "." in str(resultado):
+                resultado = self.arredondar(resultado)
         except:
             self.ERRO()
         else:
-            return self.arredondar(resultado)
+            return self.converter(resultado, "br")
 
     def funcionalidade(self, tipo, tecla):
         if tipo == "digitar":
@@ -183,7 +179,7 @@ class CALCULADORA:
             self.digitar_minicaracteres = False
 
     def enviar_equacao(self):
-        resultado = self.CALCULO(self.equacao_console)
+        resultado = self.CALCULAR(self.equacao_console)
         self.console_resultado["text"] = resultado
 
     def ERRO(self):
